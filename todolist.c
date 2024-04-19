@@ -1,27 +1,41 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 #include <string.h>
-#include <ctype.h> 
+#include <ctype.h>
 
-void guide(){
+#define MAX_TASKS 20
+#define MAX_TASK_LENGTH 50
+
+void start() {
     printf("            *THIS IS TO-DO LIST*\n");
     printf("*COMMANDS (ADD, COMPLETED, REMOVE, VIEW, HELP)*\n");
 }
 
-void add(){
-    printf("THIS IS FOR ADD\n");
+void toDoList(char task[MAX_TASKS][MAX_TASK_LENGTH], int taskCount) {
+    printf("YOUR TODO LIST:\n");
+    
+    for (int count = 0; count < taskCount; count++) {
+        printf("[%d] %s\n", count + 1, task[count]);
+    }
 }
 
-void completed(){
+void add(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
+    printf("Enter task you want to add: ");
+    scanf("%49s", task[*taskCount]); 
+    (*taskCount)++;
+
+    toDoList(task, *taskCount);
+}
+
+void completed() {
     printf("THIS IS FOR COMPLETED\n");
 }
 
-void rem(){
+void rem() {
     printf("THIS IS FOR REMOVE\n");
 }
 
-void view(){
+void view() {
     printf("THIS IS FOR VIEW\n");
 }
 
@@ -36,8 +50,7 @@ void help() {
     printf("*****************************************\n");
 }
 
-void commands(char command[10]) {
-
+void commands(char command[10], char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
     for (int index = 0; command[index] != '\0'; index++) {
         command[index] = tolower(command[index]);
     }
@@ -45,7 +58,7 @@ void commands(char command[10]) {
     switch (command[0]) {
         case 'a':
             if (strcmp(command, "add") == 0) {
-                add();
+                add(task, taskCount);
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
@@ -85,20 +98,20 @@ void commands(char command[10]) {
 }
 
 int main() {
-
+    char task[MAX_TASKS][MAX_TASK_LENGTH];
+    int taskCount = 0;
     char command[10];
 
-    guide();
+    start();
 
     printf("Enter a command: ");
     scanf("%9s", command);
 
     if (strlen(command) > 0) {
-        commands(command);
-    } else{
-        printf("Please provide some text.");
+        commands(command, task, &taskCount);
+    } else {
+        printf("Please provide some text.\n");
     }
 
     return 0;
-
 }
