@@ -19,25 +19,58 @@ void toDoList(char task[MAX_TASKS][MAX_TASK_LENGTH], int taskCount) {
     }
 }
 
-void add(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
-    printf("Enter task you want to add: ");
-    scanf("%49s", task[*taskCount]); 
-    (*taskCount)++;
-
-    toDoList(task, *taskCount);
-}
-
 void completed() {
     printf("THIS IS FOR COMPLETED\n");
 }
 
-void rem() {
-    printf("THIS IS FOR REMOVE\n");
+void rem(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
+    int number;
+
+    printf("Enter number of task you want to remove: ");
+    if (scanf(" %d", &number) != 1 || number < 1 || number > *taskCount) {
+        printf("Invalid task number.\n");
+        return;
+    }
+
+    for (int index = number - 1; index < *taskCount; index++) {
+        strcpy(task[index], task[index + 1]);
+    }
+
+    task[*taskCount - 1][0] = '\0';
+
+    (*taskCount)--;
+}
+void add(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
+    char answer;
+
+    printf("Enter task you want to add: ");
+    scanf(" %49[^\n]", task[*taskCount]); 
+    (*taskCount)++;
+
+    do {
+            char action[10];
+            printf("Enter action (add, completed, remove, view, end): ");
+            scanf(" %9s", action);
+            fflush(stdin);
+            
+            if (strcmp(action, "completed") == 0) {
+                completed();
+            } else if (strcmp(action, "remove") == 0) {
+                rem(task, taskCount);
+            } else if (strcmp(action, "add") == 0) {
+                add(task, taskCount);
+                break;
+            } else if (strcmp(action, "view") == 0) {
+                toDoList(task, *taskCount);
+            } else if (strcmp(action, "end") == 0) {
+                exit(0); 
+            } else {
+                printf("Invalid action. Please try again.\n");
+            }
+        }
+    while (1);
 }
 
-void view() {
-    printf("THIS IS FOR VIEW\n");
-}
 
 void help() {
     printf("*****************************************\n");
@@ -72,14 +105,14 @@ void commands(char command[10], char task[MAX_TASKS][MAX_TASK_LENGTH], int *task
             break;
         case 'r':
             if (strcmp(command, "remove") == 0) {
-                rem();
+                rem(task, taskCount);
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
             break;
         case 'v':
             if (strcmp(command, "view") == 0) {
-                view();
+                toDoList(task, *taskCount);
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
@@ -104,13 +137,18 @@ int main() {
 
     start();
 
-    printf("Enter a command: ");
-    scanf("%9s", command);
+    while (1) {
+        printf("Enter a command (or 'end' to exit): ");
+        if (scanf("%9s", command) != 1) {
+            printf("Error reading command input.\n");
+            return 1; 
+        }
 
-    if (strlen(command) > 0) {
+        if (strcmp(command, "end") == 0) {
+            break; 
+        }
+
         commands(command, task, &taskCount);
-    } else {
-        printf("Please provide some text.\n");
     }
 
     return 0;
