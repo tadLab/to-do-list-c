@@ -11,35 +11,32 @@ void start() {
     printf("*COMMANDS (ADD, COMPLETED, REMOVE, VIEW, HELP)*\n");
 }
 
-int completed(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
+int completed(char task[MAX_TASKS][MAX_TASK_LENGTH]) {
     int number;
 
     printf("Enter number of task you completed: ");
-    if (scanf(" %d", &number) != 1 || number < 1 || number > *taskCount) {
+    if (scanf(" %d", &number) != 1 || number < 1 || number > MAX_TASKS) {
         printf("Invalid task number.\n");
         return 0;
     } else {
         return number;
     }
+
 }
 
-
-void toDoList(char task[MAX_TASKS][MAX_TASK_LENGTH], int taskCount) {
+void toDoList(char task[MAX_TASKS][MAX_TASK_LENGTH], int taskCount, int completedTask) {
     printf("YOUR TODO LIST:\n");
-    
+
     for (int count = 0; count < taskCount; count++) {
-        printf("[%d] %s\n", count + 1, task[count]);
+        if (count + 1 == completedTask) {
+            printf("[X] %s\n", task[count]);
+        } else {
+            printf("[%d] %s\n", count + 1, task[count]);
+        }
     }
 }
 
-void rem(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
-    int number;
-
-    printf("Enter number of task you want to remove: ");
-    if (scanf(" %d", &number) != 1 || number < 1 || number > *taskCount) {
-        printf("Invalid task number.\n");
-        return;
-    }
+void rem(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount, int number) {
 
     for (int index = number - 1; index < *taskCount; index++) {
         strcpy(task[index], task[index + 1]);
@@ -58,29 +55,35 @@ void add(char task[MAX_TASKS][MAX_TASK_LENGTH], int *taskCount) {
     (*taskCount)++;
 
     do {
-            char action[10];
-            printf("Enter action (add, completed, remove, view, end): ");
-            scanf(" %9s", action);
-            fflush(stdin);
-            
-            if (strcmp(action, "completed") == 0) {
-                completed(task, taskCount);
-            } else if (strcmp(action, "remove") == 0) {
-                rem(task, taskCount);
-            } else if (strcmp(action, "add") == 0) {
-                add(task, taskCount);
-                break;
-            } else if (strcmp(action, "view") == 0) {
-                toDoList(task, *taskCount);
-            } else if (strcmp(action, "end") == 0) {
-                exit(0); 
-            } else {
-                printf("Invalid action. Please try again.\n");
-            }
+        char action[10];
+        printf("Enter action (add, completed, remove, view, end): ");
+        scanf(" %9s", action);
+        fflush(stdin);
+        
+        if (strcmp(action, "completed") == 0) {
+            int completedTask = completed(task);
+            toDoList(task, *taskCount, completedTask);
+            rem(task, taskCount, completedTask);
+        } else if (strcmp(action, "remove") == 0) {
+            int number;
+                printf("Enter number of task you want to remove: ");
+                if (scanf(" %d", &number) != 1 || number < 1 || number > *taskCount) {
+                    printf("Invalid task number.\n");
+                    return;
+                }
+            rem(task, taskCount, number);
+        } else if (strcmp(action, "add") == 0) {
+            add(task, taskCount);
+            break;
+        } else if (strcmp(action, "view") == 0) {
+            toDoList(task, *taskCount, 0); // 0 means no task is completed
+        } else if (strcmp(action, "end") == 0) {
+            exit(0); 
+        } else {
+            printf("Invalid action. Please try again.\n");
         }
-    while (1);
+    } while (1);
 }
-
 
 void help() {
     printf("*****************************************\n");
@@ -108,21 +111,29 @@ void commands(char command[10], char task[MAX_TASKS][MAX_TASK_LENGTH], int *task
             break;
         case 'c':
             if (strcmp(command, "completed") == 0) {
-                completed(task, taskCount);
+                int completedTask = completed(task);
+                toDoList(task, *taskCount, completedTask);
+                rem(task, taskCount, completedTask);
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
             break;
         case 'r':
             if (strcmp(command, "remove") == 0) {
-                rem(task, taskCount);
+                int number;
+                printf("Enter number of task you want to remove: ");
+                if (scanf(" %d", &number) != 1 || number < 1 || number > *taskCount) {
+                    printf("Invalid task number.\n");
+                    return;
+                }
+                rem(task, taskCount, number);
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
             break;
         case 'v':
             if (strcmp(command, "view") == 0) {
-                toDoList(task, *taskCount);
+                toDoList(task, *taskCount, 0); // 0 means no task is completed
             } else {
                 printf("Invalid command. Type 'HELP' for available commands.\n");
             }
